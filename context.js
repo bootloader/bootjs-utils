@@ -13,17 +13,17 @@ class Context {
   }
 
   start() {
-    return (req, res, next)=>{
-        this.run(() => {
-            let requestContext = request.context(req);
-            let siteId = requestContext.headerOrParam("tnt");
-            this.setTenant(siteId);
-      
-            let traceId = requestContext.headerOrParam("x-trace-id");
-            this.setTraceId(traceId);
-            next();
-          });
-    }
+    return (req, res, next) => {
+      this.run(() => {
+        let requestContext = request.context(req);
+        let siteId = requestContext.headerOrParam("tnt");
+        this.setTenant(siteId);
+
+        let traceId = requestContext.headerOrParam("x-trace-id");
+        this.setTraceId(traceId);
+        next();
+      });
+    };
   }
 
   /** Set a value in the current request context */
