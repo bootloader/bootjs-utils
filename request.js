@@ -26,7 +26,7 @@ class Request {
     return traceId;
   }
   headerOrParam(key) {
-    return this.req.header(key) || this.req.param(key);
+    return this.header(key) || this.param(key);
   }
 
   static context(req) {
