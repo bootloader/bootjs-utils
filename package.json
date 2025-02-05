@@ -1,6 +1,6 @@
 {
   "name": "@bootloader/utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Common Utils with Multi-Tenant Support",
   "main": "index.js",
   "scripts": {
