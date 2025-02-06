@@ -11,12 +11,12 @@ class Request {
 
     //Check in query params
     if (traceId === undefined) {
-      traceId = this.req.query[key];
+      traceId = this.req.query?.[key];
     }
 
     // Check in cookies
     if (traceId === undefined) {
-      traceId = this.req.cookies[key];
+      traceId = this.req.cookies?.[key];
     }
     // Check in headers
     if (traceId === undefined) {
