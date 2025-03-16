@@ -36,4 +36,16 @@ function requireGlobal(pkgName) {
   }
 }
 
-module.exports = requireGlobal
+function requireOptional(packageName,defaultModule={}) {
+  try {
+    return require(packageName);
+  } catch (error) {
+    console.log(`Optional module [${packageName}] not found, continuing without it.`);
+  }
+  return defaultModule;
+}
+
+module.exports = {
+  requireGlobal,
+  requireOptional
+}
