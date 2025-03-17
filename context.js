@@ -1,6 +1,8 @@
-const { AsyncLocalStorage } = require("async_hooks");
+const { AsyncLocalStorage } = require('async_hooks');
 
-const request = require("./request");
+const request = require('./request');
+
+import crypto from 'crypto';
 
 class Context {
   constructor() {
@@ -12,18 +14,42 @@ class Context {
     this.asyncLocalStorage.run(new Map(), fn);
   }
 
-  start() {
+  useDefaults({ tenant, traceId }) {
+    if (!tenant) {
+      tenant = '---';
+      this.setTenant(tenant);
+    }
+    if (!traceId) {
+      traceId = crypto.randomUUID();
+      this.setTraceId(traceId);
+    }
+    return { tenant, traceId };
+  }
+
+  start(callback) {
     return (req, res, next) => {
       this.run(() => {
         let requestContext = request.context(req);
-        let siteId = requestContext.headerOrParam("tnt");
-        this.setTenant(siteId);
-
-        let traceId = requestContext.headerOrParam("x-trace-id");
-        this.setTraceId(traceId);
+        let tenant = requestContext.headerOrParam('tnt');
+        this.setTenant(tenant);
+        let traceId = requestContext.headerOrParam('x-trace-id');
+        if (typeof callback == 'function') {
+          callback({ traceId, tenant, requestContext, req, res });
+        }
+        this.useDefaults({ traceId, tenant });
         next();
       });
     };
+  }
+
+  withRequest(callback) {
+    return this.start(callback);
+  }
+
+  init(options = {}) {
+    this.run(() => {
+      this.useDefaults(options);
+    });
   }
 
   /** Set a value in the current request context */
@@ -40,22 +66,22 @@ class Context {
 
   /** Set the Trace ID */
   setTraceId(traceId) {
-    this.set("traceId", traceId);
+    this.set('traceId', traceId);
   }
 
   /** Get the Trace ID */
   getTraceId() {
-    return this.get("traceId");
+    return this.get('traceId');
   }
 
   /** Set the Tenant ID */
   setTenant(tenant) {
-    this.set("tenant", tenant);
+    this.set('tenant', tenant);
   }
 
   /** Get the Tenant ID */
   getTenant() {
-    return this.get("tenant");
+    return this.get('tenant');
   }
 }
 
