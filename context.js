@@ -42,7 +42,7 @@ class Context {
 
   init(...args) {
     let fun = args.find(arg => typeof arg == 'function') || (() => {});
-    let options = args.find(arg => arg == 'object') || {};
+    let options = args.find(arg => typeof arg == 'object') || {};
     this.run(() => {
       fun(this.useDefaults(options));
     });
