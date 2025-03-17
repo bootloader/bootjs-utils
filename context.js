@@ -14,29 +14,23 @@ class Context {
     this.asyncLocalStorage.run(new Map(), fn);
   }
 
-  useDefaults({ tenant, traceId }) {
-    if (!tenant) {
-      tenant = '---';
-      this.setTenant(tenant);
-    }
+  useDefaults({ tenant = '~~~', traceId }) {
+    this.setTenant(tenant);
     if (!traceId) {
       traceId = crypto.randomUUID();
-      this.setTraceId(traceId);
     }
+    this.setTraceId(traceId);
     return { tenant, traceId };
   }
 
-  start(callback) {
+  start(...args) {
+    let fun = args.find(arg => typeof arg == 'function') || (() => {});
     return (req, res, next) => {
       this.run(() => {
         let requestContext = request.context(req);
         let tenant = requestContext.headerOrParam('tnt');
-        this.setTenant(tenant);
         let traceId = requestContext.headerOrParam('x-trace-id');
-        if (typeof callback == 'function') {
-          callback({ traceId, tenant, requestContext, req, res });
-        }
-        this.useDefaults({ traceId, tenant });
+        fun(this.useDefaults({ tenant, traceId }));
         next();
       });
     };
@@ -46,9 +40,11 @@ class Context {
     return this.start(callback);
   }
 
-  init(options = {}) {
+  init(...args) {
+    let fun = args.find(arg => typeof arg == 'function') || (() => {});
+    let options = args.find(arg => arg == 'object') || {};
     this.run(() => {
-      this.useDefaults(options);
+      fun(this.useDefaults(options));
     });
   }
 
