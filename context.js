@@ -2,7 +2,7 @@ const { AsyncLocalStorage } = require('async_hooks');
 
 const request = require('./request');
 
-import crypto from 'crypto';
+const crypto = require('crypto');
 
 class Context {
   constructor() {
