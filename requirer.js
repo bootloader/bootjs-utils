@@ -1,5 +1,5 @@
-const path = require("path");
-const fs = require("fs");
+const path = require('path');
+const fs = require('fs');
 
 function requireGlobal(pkgName) {
   try {
@@ -22,7 +22,7 @@ function requireGlobal(pkgName) {
 
     for (const globalPath of globalPaths) {
       const modulePath = path.join(globalPath, pkgName);
-      if (fs.existsSync(modulePath) || fs.existsSync(modulePath + ".js")) {
+      if (fs.existsSync(modulePath) || fs.existsSync(modulePath + '.js')) {
         return require(modulePath);
       }
     }
@@ -36,16 +36,19 @@ function requireGlobal(pkgName) {
   }
 }
 
-function requireOptional(packageName,defaultModule={}) {
-  try {
-    return require(packageName);
-  } catch (error) {
-    console.log(`Optional module [${packageName}] not found, continuing without it.`);
+function requireOptional(packageNames, defaultModule = {}) {
+  for (let packageName of packageNames.split('|')) {
+    try {
+      return require(packageName);
+    } catch (error) {
+      //NoPrint
+    }
   }
+  console.log(`Optional module [${packageNames}] not found, continuing without it.`);
   return defaultModule;
 }
 
 module.exports = {
   requireGlobal,
-  requireOptional
-}
+  requireOptional,
+};
