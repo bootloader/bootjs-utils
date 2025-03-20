@@ -79,6 +79,17 @@ class Context {
   getTenant() {
     return this.get('tenant');
   }
+
+  toMap(){
+    let tenant = this.getTenant();
+    let traceId = this.getTraceId();
+    return { tenant,traceId}
+  }
+
+  fromMap({tenant,traceId}){
+    this.setTenant(tenant);
+    this.getTraceId(traceId);
+  }
 }
 
 // Export a singleton instance
