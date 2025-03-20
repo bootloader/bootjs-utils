@@ -4,6 +4,10 @@ const request = require('./request');
 
 const crypto = require('crypto');
 
+const info = {
+  id: 0,
+};
+
 class Context {
   constructor() {
     this.asyncLocalStorage = new AsyncLocalStorage();
@@ -11,7 +15,14 @@ class Context {
 
   /** Starts a new context for the request */
   run(fn) {
-    this.asyncLocalStorage.run(new Map(), fn);
+    if (this.asyncLocalStorage.getStore()) {
+      return fn(); // Continue using the existing context
+    }
+    let mp = new Map();
+    mp.set('_:id', info.id++);
+    return this.asyncLocalStorage.run(mp, async () => {
+      return await fn(); // Ensure the async function executes within the context
+    });
   }
 
   useDefaults({ tenant = '~~~', traceId }) {
@@ -26,11 +37,11 @@ class Context {
   start(...args) {
     let fun = args.find(arg => typeof arg == 'function') || (() => {});
     return (req, res, next) => {
-      this.run(() => {
+      this.run(async () => {
         let requestContext = request.context(req);
         let tenant = requestContext.headerOrParam('tnt');
         let traceId = requestContext.headerOrParam('x-trace-id');
-        fun(this.useDefaults({ tenant, traceId }));
+        await fun(this.useDefaults({ tenant, traceId }));
         next();
       });
     };
@@ -43,8 +54,8 @@ class Context {
   init(...args) {
     let fun = args.find(arg => typeof arg == 'function') || (() => {});
     let options = args.find(arg => typeof arg == 'object') || {};
-    this.run(() => {
-      fun(this.useDefaults(options));
+    return this.run(async () => {
+      await fun(this.useDefaults(options));
     });
   }
 
@@ -62,33 +73,51 @@ class Context {
 
   /** Set the Trace ID */
   setTraceId(traceId) {
-    this.set('traceId', traceId);
+    this.set('_:traceId', traceId);
   }
 
   /** Get the Trace ID */
   getTraceId() {
-    return this.get('traceId');
+    return this.get('_:traceId');
   }
 
   /** Set the Tenant ID */
   setTenant(tenant) {
-    this.set('tenant', tenant);
+    this.set('_:tenant', tenant);
   }
 
   /** Get the Tenant ID */
   getTenant() {
-    return this.get('tenant');
+    return this.get('_:tenant');
   }
 
-  toMap(){
+  /** Get the ID */
+  getId() {
+    return this.get('_:id');
+  }
+
+  /** Set the Tenant ID */
+  setId(id) {
+    this.set('_:id', id);
+  }
+
+  toMap() {
     let tenant = this.getTenant();
     let traceId = this.getTraceId();
-    return { tenant,traceId}
+    let id = this.getId();
+    return { tenant, traceId, id };
   }
 
-  fromMap({tenant,traceId}){
-    this.setTenant(tenant);
-    this.getTraceId(traceId);
+  fromMap(context, fn) {
+    this.setTenant(context.tenant);
+    this.setTraceId(context.traceId);
+    this.setId(context.id);
+    //this.asyncLocalStorage.enterWith(store);
+  }
+
+  debug() {
+    const store = this.asyncLocalStorage.getStore();
+    console.log('Context Store:', store ? Object.fromEntries(store) : 'No active context');
   }
 }
 
