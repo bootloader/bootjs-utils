@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const stringy = require('./stringy');
 
 function requireGlobal(pkgName) {
   try {
@@ -37,14 +38,18 @@ function requireGlobal(pkgName) {
 }
 
 function requireOptional(packageNames, defaultModule = {}) {
+  let e;
   for (let packageName of packageNames.split('|')) {
     try {
-      return require(packageName);
+      const resolvedPath = require.resolve(packageName, { paths: [require.main.path] });
+      return require(resolvedPath);
     } catch (error) {
-      //NoPrint
+      e = error;
+      // NoPrint
     }
   }
-  console.log(`Optional module [${packageNames}] not found, continuing without it.`);
+  console.warn(`⚠️ Optional module [${packageNames}] not found, continuing without it.`);
+  console.error(stringy.indent(e.message, 4));
   return defaultModule;
 }
 
