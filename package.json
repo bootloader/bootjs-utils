@@ -15,7 +15,7 @@
   "dependencies": {
   },
   "peerDependencies": {
-    "@bootloader/context": "^0.0.5"
+    "@bootloader/context": "^1.0.16"
   },
   "bugs": {
     "url": "https://github.com/bootloader/bootjs-utils/issues"
