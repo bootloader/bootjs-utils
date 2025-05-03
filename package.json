@@ -1,6 +1,6 @@
 {
   "name": "@bootloader/utils",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "Common Utils with Multi-Tenant Support",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   "dependencies": {
   },
   "peerDependencies": {
-    "@bootloader/context": "^1.0.16"
+    "@bootloader/context": "^1.0.17"
   },
   "bugs": {
     "url": "https://github.com/bootloader/bootjs-utils/issues"
