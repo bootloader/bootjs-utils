@@ -4,10 +4,11 @@ const system = require("./system");
 const {requireGlobal,requireOptional} = require("./requirer");
 const stringy = require('./stringy');
 const ensure = require('./ensure');
+const pathy = require('./pathy');
 
 module.exports = {
   context,
   timely,stringy,ensure,
   requireGlobal,requireOptional,
-  system,
+  system,pathy,
 };
