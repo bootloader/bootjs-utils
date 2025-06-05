@@ -5,10 +5,11 @@ const {requireGlobal,requireOptional} = require("./requirer");
 const stringy = require('./stringy');
 const ensure = require('./ensure');
 const pathy = require('./pathy');
+const urly = require('./urly');
 
 module.exports = {
   context,
   timely,stringy,ensure,
   requireGlobal,requireOptional,
-  system,pathy,
+  system,pathy,urly
 };
