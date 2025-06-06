@@ -23,5 +23,8 @@ module.exports = {
         } else {
             return this.TimeStampIndex.from(stamp);
         }
+    },
+    wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }
